@@ -20,6 +20,8 @@ public class TransactionXid implements Xid, Serializable {
 
     private byte[] branchQualifier;
 
+    private static byte[] CUSTOMIZED_TRANSACTION_ID = "UniqueIdentity".getBytes();
+
     public TransactionXid() {
         globalTransactionId = uuidToByteArray(UUID.randomUUID());
         branchQualifier = uuidToByteArray(UUID.randomUUID());
@@ -33,9 +35,24 @@ public class TransactionXid implements Xid, Serializable {
         this.branchQualifier = branchQualifier;
     }
 
+    public TransactionXid(Object uniqueIdentity) {
+
+        if (uniqueIdentity == null) {
+
+            globalTransactionId = uuidToByteArray(UUID.randomUUID());
+            branchQualifier = uuidToByteArray(UUID.randomUUID());
+
+        } else {
+
+            this.globalTransactionId = CUSTOMIZED_TRANSACTION_ID;
+
+            this.branchQualifier = uniqueIdentity.toString().getBytes();
+        }
+    }
+
     public TransactionXid(byte[] globalTransactionId) {
         this.globalTransactionId = globalTransactionId;
-        branchQualifier = uuidToByteArray(UUID.randomUUID());
+        this.branchQualifier = uuidToByteArray(UUID.randomUUID());
     }
 
     public TransactionXid(byte[] globalTransactionId, byte[] branchQualifier) {
@@ -62,8 +79,16 @@ public class TransactionXid implements Xid, Serializable {
     public String toString() {
 
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(UUID.nameUUIDFromBytes(globalTransactionId).toString());
-        stringBuilder.append(":").append(UUID.nameUUIDFromBytes(branchQualifier).toString());
+        if (Arrays.equals(CUSTOMIZED_TRANSACTION_ID, globalTransactionId)) {
+
+            stringBuilder.append(new String(globalTransactionId));
+            stringBuilder.append(":").append(new String(branchQualifier));
+
+        } else {
+
+            stringBuilder.append(UUID.nameUUIDFromBytes(globalTransactionId).toString());
+            stringBuilder.append(":").append(UUID.nameUUIDFromBytes(branchQualifier).toString());
+        }
 
         return stringBuilder.toString();
     }
