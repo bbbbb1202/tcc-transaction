@@ -15,8 +15,8 @@
  */
 package org.mengyun.tcctransaction.dubbo.proxy.javassist;
 
-import com.alibaba.dubbo.common.utils.ClassHelper;
-import com.alibaba.dubbo.common.utils.ReflectUtils;
+import org.apache.dubbo.common.utils.ClassHelper;
+import org.apache.dubbo.common.utils.ReflectUtils;
 import org.mengyun.tcctransaction.api.Compensable;
 
 import java.lang.ref.Reference;
@@ -34,25 +34,24 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 
 public abstract class TccProxy {
-    private static final AtomicLong PROXY_CLASS_COUNTER = new AtomicLong(0);
-
-    private static final String PACKAGE_NAME = TccProxy.class.getPackage().getName();
-
     public static final InvocationHandler RETURN_NULL_INVOKER = new InvocationHandler() {
         public Object invoke(Object proxy, Method method, Object[] args) {
             return null;
         }
     };
-
     public static final InvocationHandler THROW_UNSUPPORTED_INVOKER = new InvocationHandler() {
         public Object invoke(Object proxy, Method method, Object[] args) {
             throw new UnsupportedOperationException("Method [" + ReflectUtils.getName(method) + "] unimplemented.");
         }
     };
-
+    private static final AtomicLong PROXY_CLASS_COUNTER = new AtomicLong(0);
+    private static final String PACKAGE_NAME = TccProxy.class.getPackage().getName();
     private static final Map<ClassLoader, Map<String, Object>> ProxyCacheMap = new WeakHashMap<ClassLoader, Map<String, Object>>();
 
     private static final Object PendingGenerationMarker = new Object();
+
+    protected TccProxy() {
+    }
 
     /**
      * Get proxy.
@@ -224,25 +223,6 @@ public abstract class TccProxy {
         return proxy;
     }
 
-    /**
-     * get instance with default handler.
-     *
-     * @return instance.
-     */
-    public Object newInstance() {
-        return newInstance(THROW_UNSUPPORTED_INVOKER);
-    }
-
-    /**
-     * get instance with special handler.
-     *
-     * @return instance.
-     */
-    abstract public Object newInstance(InvocationHandler handler);
-
-    protected TccProxy() {
-    }
-
     private static String asArgument(Class<?> cl, String name) {
         if (cl.isPrimitive()) {
             if (Boolean.TYPE == cl)
@@ -265,4 +245,20 @@ public abstract class TccProxy {
         }
         return "(" + ReflectUtils.getName(cl) + ")" + name;
     }
+
+    /**
+     * get instance with default handler.
+     *
+     * @return instance.
+     */
+    public Object newInstance() {
+        return newInstance(THROW_UNSUPPORTED_INVOKER);
+    }
+
+    /**
+     * get instance with special handler.
+     *
+     * @return instance.
+     */
+    abstract public Object newInstance(InvocationHandler handler);
 }

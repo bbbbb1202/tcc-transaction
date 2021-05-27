@@ -2,7 +2,6 @@ package org.mengyun.tcctransaction.unittest.client;
 
 import org.mengyun.tcctransaction.api.Compensable;
 import org.mengyun.tcctransaction.api.Propagation;
-import org.mengyun.tcctransaction.api.UniqueIdentity;
 import org.mengyun.tcctransaction.unittest.entity.AccountStatus;
 import org.mengyun.tcctransaction.unittest.entity.SubAccount;
 import org.mengyun.tcctransaction.unittest.repository.SubAccountRepository;
@@ -47,7 +46,7 @@ public class TransferService {
 
     @Compensable(confirmMethod = "transferConfirm", cancelMethod = "transferCancel")
     @Transactional
-    public void transfer(@UniqueIdentity long fromAccountId, long toAccountId, int amount) {
+    public void transfer(long fromAccountId, long toAccountId, int amount) {
 
         System.out.println("transfer called");
 
